@@ -1,0 +1,19 @@
+version: '3'
+services:
+  storage.emulator:
+    image: "mcr.microsoft.com/azure-storage/azurite"
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+  
+  functions:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - API_AzureStorageConnectionString
+    depends_on:
+      - storage.emulator
