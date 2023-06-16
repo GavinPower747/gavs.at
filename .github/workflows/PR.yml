@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build:
+  verify:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -17,7 +17,7 @@ jobs:
         go-version: '1.20'
 
     - name: Build
-      run: GOOS=linux GOARCH=amd64 go build ./cmd/server/main.go
+      run: make compile CI=true
       
     - name: Test
-      run: GOOS=linux GOARCH=amd64 go test ./...
+      run: make test CI=true
