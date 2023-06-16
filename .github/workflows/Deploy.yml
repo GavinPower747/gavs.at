@@ -29,3 +29,4 @@ jobs:
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
+        package: ./functions
