@@ -1,10 +1,10 @@
-FROM golang:1.19 as builder
+FROM golang:1.20 as builder
 
 COPY . ./app
 
 WORKDIR /go/app
 
-RUN mkdir ./functions/bin && go build -tags "prod" -o ./functions/bin/server ./cmd/server/main.go
+RUN make compile ENVIROMENT=production
 
 FROM mcr.microsoft.com/azure-functions/base:4 as runtime-image
 

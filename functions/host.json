@@ -19,7 +19,7 @@
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "bin/server",
+      "defaultExecutablePath": "./bin/server",
       "workingDirectory": "",
       "arguments": []
     },

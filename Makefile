@@ -1,12 +1,31 @@
-ifeq ($(CI), true)
-	CI_ARCH = GOOS=linux GOARCH=amd64
+funcRoot := ./functions
+
+ifeq ($(ENVIRONMENT), production)
+	ARCH = GOOS=linux GOARCH=amd64
+	LD_FLAGS = -ldflags="-s -w"
+	TAGS = -tags=prod
 endif
 
-compile:
-	$(CI_ARCH) go build -o ./functions/bin/server ./cmd/server/main.go
+# This is pretty stupid to have to do
+ifeq ($(OS), Windows_NT)
+	RM_FLAGS = -r -Force
+else
+	RM_FLAGS = -rf
+endif
+
+.PHONY: install dev-run clean compile test
+
+dev-run: install
+	docker-compose --env-file ./.env up
+
+install:
+	go get -u ./... && go mod tidy
+
+clean:
+	rm $(RM_FLAGS) $(funcRoot)/bin
+
+compile: clean
+	$(ARCH) go build $(LD_FLAGS) $(TAGS) -o $(funcRoot)/bin/server ./cmd/server/main.go
 
 test:
-	$(CI_ARCH) go test -v ./...
-
-dev-run: 
-	docker-compose --env-file ./.env up
+	$(ARCH) go test -v ./...
