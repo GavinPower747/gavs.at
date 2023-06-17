@@ -14,7 +14,7 @@ func (h *Handlers) Redirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["slug"]
 
-	url_bytes, err := h.storage.QueryEntity("1", slug);
+	url_bytes, err := h.storage.QueryEntity("1", slug)
 
 	if err != nil {
 		log.Printf("Error querying entity: %s", err)

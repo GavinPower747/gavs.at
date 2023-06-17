@@ -24,12 +24,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handlers := handlers.NewHandlers(storageAccount)
+	reqHandlers := handlers.NewHandlers(storageAccount)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
-	timeout := time.Duration(5 * time.Second)
+	timeout := 5 * time.Second
 
 	srv := &http.Server{
 		Handler: r,

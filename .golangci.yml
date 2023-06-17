@@ -61,5 +61,9 @@ output:
   print-linter-name: true
   print-linters: true
 
+issues:
+  max-same-issues: 0
+  max-issues-per-linter: 0
+
 run:
   issues-exit-code: 1
