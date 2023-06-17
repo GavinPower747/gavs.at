@@ -35,6 +35,7 @@ func (h *Handlers) Redirect(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error unmarshalling entity: %s", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+
 		return
 	}
 
