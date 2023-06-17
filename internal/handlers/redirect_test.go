@@ -83,7 +83,3 @@ func TestRedirectError(t *testing.T) {
 
     assert.Equal(t, http.StatusInternalServerError, rr.Code)
 }
-
-func TestShouldFail(t *testing.T) {
-    assert.Equal(t, true, false)
-}
