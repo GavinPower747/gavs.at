@@ -9,20 +9,20 @@ import (
 	"github.com/Azure/go-autorest/autorest/to"
 )
 
-type Storage interface {
+type Account interface {
 	QueryEntity(partitionKey string, rowKey string) ([]byte, error)
 }
 
-type StorageAccount struct {
-	service_client *aztables.ServiceClient
+type storageAccount struct {
+	serviceClient *aztables.ServiceClient
 }
 
 const (
 	TableName = "ShortLinks"
 )
 
-func (sa *StorageAccount) QueryEntity(partitionKey string, rowKey string) ([]byte, error) {
-	client := sa.service_client.NewClient(TableName)
+func (sa *storageAccount) QueryEntity(partitionKey string, rowKey string) ([]byte, error) {
+	client := sa.serviceClient.NewClient(TableName)
 
 	filter := fmt.Sprintf("PartitionKey eq '%s' and RowKey eq '%s'", partitionKey, rowKey)
 	query := &aztables.ListEntitiesOptions{
@@ -48,19 +48,19 @@ func (sa *StorageAccount) QueryEntity(partitionKey string, rowKey string) ([]byt
 	return nil, nil
 }
 
-func NewStorageAccount() (*StorageAccount, error) {
+func NewStorageAccount() (*storageAccount, error) {
 	sa, err := aztables.NewServiceClientFromConnectionString(os.Getenv("API_AzureStorageConnectionString"), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	pager_options := &aztables.ListTablesOptions{
+	pagerOptions := &aztables.ListTablesOptions{
 		Filter: to.StringPtr("TableName eq '" + TableName + "'"),
 		Top: to.Int32Ptr(1),
 	}
 
-	pager := sa.NewListTablesPager(pager_options)
+	pager := sa.NewListTablesPager(pagerOptions)
 
 	for pager.More() {
 		resp, err := pager.NextPage(context.Background())
@@ -78,5 +78,5 @@ func NewStorageAccount() (*StorageAccount, error) {
 		}
 	}
 
-	return &StorageAccount{service_client: sa}, err
+	return &storageAccount{serviceClient: sa}, err
 }

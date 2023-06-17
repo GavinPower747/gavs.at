@@ -32,7 +32,7 @@ func TestRedirect(t *testing.T) {
     handlers := &Handlers{storage: mockStorage}
 
     slug := "test"
-    link := &model.Link{Slug: slug, FullUrl: "https://example.com"}
+    link := &model.Link{Slug: slug, FullURL: "https://example.com"}
     linkBytes, _ := json.Marshal(link)
     mockStorage.On("QueryEntity", "1", slug).Return(linkBytes, nil)
 
@@ -45,7 +45,7 @@ func TestRedirect(t *testing.T) {
     r.ServeHTTP(rr, req)
 
     assert.Equal(t, http.StatusFound, rr.Code)
-    assert.Equal(t, link.FullUrl, rr.Header().Get("Location"))
+    assert.Equal(t, link.FullURL, rr.Header().Get("Location"))
 }
 
 func TestRedirectNotFound(t *testing.T) {

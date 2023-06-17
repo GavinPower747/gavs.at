@@ -36,5 +36,5 @@ func (h *Handlers) Redirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, url.FullUrl, http.StatusFound)
+	http.Redirect(w, r, url.FullURL, http.StatusFound)
 }
