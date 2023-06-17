@@ -30,12 +30,8 @@ jobs:
       run: staticcheck ./...
       shell: bash
 
-    - name: Install golint
-      run: go install golang.org/x/lint/golint@latest
-
     - name: Run golint
-      run: golint ./...
-      shell: bash
+      uses: golangci/golangci-lint-action@v3.6.0
 
     - name: Build
       run: make compile ENVIRONMENT=production
