@@ -21,7 +21,7 @@ type MockStorageAccount struct {
 	mock.Mock
 }
 
-func (m *MockStorageAccount) QueryEntity(partitionKey string, rowKey string) ([]byte, error) {
+func (m *MockStorageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, error) {
     args := m.Called(partitionKey, rowKey)
 
     if args.Get(0) == nil {

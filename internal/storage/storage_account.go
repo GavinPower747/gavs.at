@@ -28,7 +28,7 @@ func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, erro
 	query := &aztables.ListEntitiesOptions{
 		Filter: &filter,
 		Select: to.StringPtr("RowKey,Slug,FullUrl"),
-		Top: to.Int32Ptr(1),
+		Top:    to.Int32Ptr(1),
 	}
 
 	pager := client.NewListEntitiesPager(query)
@@ -57,16 +57,16 @@ func NewStorageAccount() (Account, error) {
 
 	pagerOptions := &aztables.ListTablesOptions{
 		Filter: to.StringPtr("TableName eq '" + TableName + "'"),
-		Top: to.Int32Ptr(1),
+		Top:    to.Int32Ptr(1),
 	}
 
 	pager := sa.NewListTablesPager(pagerOptions)
 
 	for pager.More() {
-		resp, err := pager.NextPage(context.Background())
+		resp, pageErr := pager.NextPage(context.Background())
 
-		if err != nil {
-			return nil, err
+		if pageErr != nil {
+			return nil, pageErr
 		}
 
 		if len(resp.Tables) == 0 {
