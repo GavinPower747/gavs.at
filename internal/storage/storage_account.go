@@ -70,7 +70,7 @@ func NewStorageAccount() (Account, error) {
 		}
 
 		if len(resp.Tables) == 0 {
-			_, err := sa.CreateTable(context.Background(), TableName, nil)
+			_, err = sa.CreateTable(context.Background(), TableName, nil)
 
 			if err != nil {
 				return nil, err

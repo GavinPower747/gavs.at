@@ -29,14 +29,14 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
-	timeout := 5 * time.Second
+	const timeoutDuration = 5 * time.Second
 
 	srv := &http.Server{
 		Handler: r,
 		Addr:    listenAddr,
 
-		WriteTimeout: timeout,
-		ReadTimeout:  timeout,
+		WriteTimeout: timeoutDuration,
+		ReadTimeout:  timeoutDuration,
 	}
 
 	log.Printf("About to listen on %s. Go to https://127.0.0.1%s", listenAddr, listenAddr)
