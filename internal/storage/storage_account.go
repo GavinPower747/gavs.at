@@ -21,7 +21,7 @@ const (
 	TableName = "ShortLinks"
 )
 
-func (sa *storageAccount) QueryEntity(partitionKey string, rowKey string) ([]byte, error) {
+func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, error) {
 	client := sa.serviceClient.NewClient(TableName)
 
 	filter := fmt.Sprintf("PartitionKey eq '%s' and RowKey eq '%s'", partitionKey, rowKey)
@@ -48,7 +48,7 @@ func (sa *storageAccount) QueryEntity(partitionKey string, rowKey string) ([]byt
 	return nil, nil
 }
 
-func NewStorageAccount() (*storageAccount, error) {
+func NewStorageAccount() (Account, error) {
 	sa, err := aztables.NewServiceClientFromConnectionString(os.Getenv("API_AzureStorageConnectionString"), nil)
 
 	if err != nil {

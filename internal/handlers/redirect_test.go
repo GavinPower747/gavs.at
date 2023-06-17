@@ -13,6 +13,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const (
+    slug = "test"
+)
+
 type MockStorageAccount struct {
 	mock.Mock
 }
@@ -31,7 +35,6 @@ func TestRedirect(t *testing.T) {
     mockStorage := &MockStorageAccount{}
     handlers := &Handlers{storage: mockStorage}
 
-    slug := "test"
     link := &model.Link{Slug: slug, FullURL: "https://example.com"}
     linkBytes, _ := json.Marshal(link)
     mockStorage.On("QueryEntity", "1", slug).Return(linkBytes, nil)
@@ -39,7 +42,7 @@ func TestRedirect(t *testing.T) {
     r := mux.NewRouter()
     r.HandleFunc("/{slug}", handlers.Redirect)
 
-    req, _ := http.NewRequest("GET", "/"+slug, nil)
+    req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
     rr := httptest.NewRecorder()
     r.ServeHTTP(rr, req)
@@ -52,13 +55,12 @@ func TestRedirectNotFound(t *testing.T) {
     mockStorage := &MockStorageAccount{}
     handlers := &Handlers{storage: mockStorage}
 
-    slug := "test"
     mockStorage.On("QueryEntity", "1", slug).Return(nil, nil)
 
     r := mux.NewRouter()
     r.HandleFunc("/{slug}", handlers.Redirect)
 
-    req, _ := http.NewRequest("GET", "/"+slug, nil)
+    req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
     rr := httptest.NewRecorder()
     r.ServeHTTP(rr, req)
@@ -70,13 +72,12 @@ func TestRedirectError(t *testing.T) {
     mockStorage := &MockStorageAccount{}
     handlers := &Handlers{storage: mockStorage}
 
-    slug := "test"
     mockStorage.On("QueryEntity", "1", slug).Return(nil, errors.New("test error"))
 
     r := mux.NewRouter()
     r.HandleFunc("/{slug}", handlers.Redirect)
 
-    req, _ := http.NewRequest("GET", "/"+slug, nil)
+    req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
     rr := httptest.NewRecorder()
     r.ServeHTTP(rr, req)

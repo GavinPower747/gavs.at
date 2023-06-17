@@ -18,23 +18,25 @@ func main() {
 		listenAddr = ":" + val
 	}
 
-	storage_account, err := storage.NewStorageAccount()
+	storageAccount, err := storage.NewStorageAccount()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	handlers := handlers.NewHandlers(storage_account)
+	handlers := handlers.NewHandlers(storageAccount)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{slug}", handlers.Redirect)
+
+	timeout := time.Duration(5 * time.Second)
 
 	srv := &http.Server{
 		Handler: r,
 		Addr:    listenAddr,
 
-		WriteTimeout: 5 * time.Second,
-		ReadTimeout:  5 * time.Second,
+		WriteTimeout: timeout,
+		ReadTimeout:  timeout,
 	}
 
 	log.Printf("About to listen on %s. Go to https://127.0.0.1%s", listenAddr, listenAddr)

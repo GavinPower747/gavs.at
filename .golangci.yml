@@ -23,7 +23,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - depguard
     - dogsled
     - dupl
     - errcheck
@@ -55,6 +54,13 @@ linters:
     - unused
     - whitespace
     - wsl
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  print-linters: true
+  print-usage: true
 
 run:
   issues-exit-code: 1

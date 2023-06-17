@@ -19,18 +19,7 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Run go vet
-      run: go vet ./...
-      shell: bash
-
-    - name: Install staticcheck
-      run: go install honnef.co/go/tools/cmd/staticcheck@latest
-
-    - name: Run staticcheck
-      run: staticcheck ./...
-      shell: bash
-
-    - name: Run golint
+    - name: Lint Code
       uses: golangci/golangci-lint-action@v3.6.0
 
     - name: Build
