@@ -1,6 +1,6 @@
 module gavs.at/shortener
 
-go 1.20
+go 1.19
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/data/aztables v1.0.1
