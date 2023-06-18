@@ -22,6 +22,7 @@
       "defaultExecutablePath": "./bin/server",
       "workingDirectory": "",
       "arguments": []
-    }
+    },
+    "enableForwardingHttpRequest": true
   }
 }
