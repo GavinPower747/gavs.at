@@ -6,9 +6,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"gavs.at/shortener/internal/handlers"
 	"gavs.at/shortener/internal/storage"
-	"github.com/gorilla/mux"
+	"gavs.at/shortener/pkg/middleware"
 )
 
 func main() {
@@ -27,7 +29,16 @@ func main() {
 	reqHandlers := handlers.NewHandlers(storageAccount)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", reqHandlers.Redirect)
+
+	r.Use(middleware.RequestMetrics)
+
+	apiRouter := r.Path("/api").Subrouter()
+
+	apiRouter.Use(middleware.BasicAuth)
+
+	apiRouter.HandleFunc("/redirects", reqHandlers.UpsertRedirect).Methods("POST")
+
+	r.HandleFunc("/{slug}", reqHandlers.Redirect).Methods("GET")
 
 	const timeoutDuration = 5 * time.Second
 

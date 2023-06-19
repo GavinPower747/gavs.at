@@ -29,7 +29,7 @@ func (h *Handlers) Redirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var url model.Link
+	var url model.Redirect
 	err = json.Unmarshal(urlBytes, &url)
 
 	if err != nil {

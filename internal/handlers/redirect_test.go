@@ -35,7 +35,7 @@ func TestRedirect(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
 	handlers := &Handlers{storage: mockStorage}
 
-	link := &model.Link{Slug: slug, FullURL: "https://example.com"}
+	link := &model.Redirect{Slug: slug, FullURL: "https://example.com"}
 	linkBytes, _ := json.Marshal(link)
 	mockStorage.On("QueryEntity", "1", slug).Return(linkBytes, nil)
 
