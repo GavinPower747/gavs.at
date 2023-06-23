@@ -36,7 +36,7 @@ func main() {
 
 	apiRouter.Use(middleware.BasicAuth)
 
-	apiRouter.HandleFunc("/redirects", reqHandlers.UpsertRedirect).Methods("POST")
+	apiRouter.HandleFunc("/redirect", reqHandlers.UpsertRedirect).Methods("POST")
 
 	r.HandleFunc("/{slug}", reqHandlers.Redirect).Methods("GET")
 

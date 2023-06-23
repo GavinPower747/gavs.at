@@ -8,8 +8,6 @@ RUN make compile ENVIROMENT=production
 
 FROM mcr.microsoft.com/azure-functions/base:4 as runtime-image
 
-ENV AzureWebJobsStorage=$AzureWebJobsStorage
-
 ENV AzureWebJobsScriptRoot=/home/app \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 

@@ -31,6 +31,12 @@ func (m *MockStorageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, e
 	return args.Get(0).([]byte), args.Error(1)
 }
 
+func (m *MockStorageAccount) UpsertEntity(rowKey string, entity interface{}) error {
+	args := m.Called(rowKey, entity)
+
+	return args.Error(0)
+}
+
 func TestRedirect(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
 	handlers := &Handlers{storage: mockStorage}
