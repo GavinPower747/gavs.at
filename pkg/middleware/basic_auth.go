@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -13,13 +12,11 @@ import (
 
 const (
 	usernameEnvVar     = "API_BASIC_AUTH_USERNAME"
-	passwordHashEnvVar = "API_BASIC_AUTH_PASSWORD_HASH"
+	passwordHashEnvVar = "API_BASIC_AUTH_PASSWORD_HASH" //nolint:gosec // It's just the password hash that we're storing, not the password itself.
 )
 
 func BasicAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("BasicAuthMiddleware")
-
 		authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
 
 		if authHeader == "" {
