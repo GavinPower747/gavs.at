@@ -14,7 +14,7 @@ type MockHandler struct {
 	Called bool
 }
 
-func (m *MockHandler) ServeHTTP(_ http.ResponseWriter, r *http.Request) {
+func (m *MockHandler) ServeHTTP(_ http.ResponseWriter, _ *http.Request) {
 	m.Called = true
 }
 
@@ -23,6 +23,7 @@ func TestBasicAuth_MissingAuthorizationHeader(t *testing.T) {
 	authHandler := BasicAuth(mockHandler)
 
 	req, _ := http.NewRequest("GET", "/", http.NoBody)
+
 	rr := httptest.NewRecorder()
 	authHandler.ServeHTTP(rr, req)
 
@@ -53,6 +54,7 @@ func TestBasicAuth_InvalidBase64Encoding(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", http.NoBody)
 	req.Header.Set("Authorization", "Basic invalid")
+
 	rr := httptest.NewRecorder()
 	authHandler.ServeHTTP(rr, req)
 
@@ -83,6 +85,7 @@ func TestBasicAuth_InvalidCredentials(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/", http.NoBody)
 			credentials := fmt.Sprintf("%s:%s", tc.username, tc.password)
 			req.Header.Set("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(credentials))))
+
 			rr := httptest.NewRecorder()
 			authHandler.ServeHTTP(rr, req)
 
@@ -102,6 +105,7 @@ func TestBasicAuth_ValidCredentials(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", http.NoBody)
 	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("admin:admin"))))
+
 	rr := httptest.NewRecorder()
 	authHandler.ServeHTTP(rr, req)
 
