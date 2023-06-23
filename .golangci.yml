@@ -67,7 +67,10 @@ issues:
   exclude-rules:
     - linters:
         - errcheck
-      text: "Error return value of `w.Write` is not checked (errcheck)"
+      text: "Error return value of `w.Write` is not checked"
+    - linters:
+        - wsl
+      text: "declarations should never be cuddled"
     
 
 run:

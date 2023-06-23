@@ -3,7 +3,7 @@ package web
 import "net/http"
 
 // Wrapper for http.ResponseWriter that keeps track of the status code for logging/metrics
-// Satifies the http.ResponseWriter interface so it can be passed in its place
+// Satisfies the http.ResponseWriter interface so it can be passed in its place
 type StatusRecorder struct {
 	http.ResponseWriter
 	StatusCode int

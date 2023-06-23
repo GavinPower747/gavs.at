@@ -14,7 +14,7 @@ type MockHandler struct {
 	Called bool
 }
 
-func (m *MockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (m *MockHandler) ServeHTTP(_ http.ResponseWriter, r *http.Request) {
 	m.Called = true
 }
 
@@ -22,7 +22,7 @@ func TestBasicAuth_MissingAuthorizationHeader(t *testing.T) {
 	mockHandler := &MockHandler{}
 	authHandler := BasicAuth(mockHandler)
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, _ := http.NewRequest("GET", "/", http.NoBody)
 	rr := httptest.NewRecorder()
 	authHandler.ServeHTTP(rr, req)
 
@@ -35,9 +35,11 @@ func TestBasicAuth_InvalidAuthorizationHeader(t *testing.T) {
 	mockHandler := &MockHandler{}
 	authHandler := BasicAuth(mockHandler)
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, _ := http.NewRequest("GET", "/", http.NoBody)
 	req.Header.Set("Authorization", "Bearer token")
+
 	rr := httptest.NewRecorder()
+
 	authHandler.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
@@ -49,7 +51,7 @@ func TestBasicAuth_InvalidBase64Encoding(t *testing.T) {
 	mockHandler := &MockHandler{}
 	authHandler := BasicAuth(mockHandler)
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, _ := http.NewRequest("GET", "/", http.NoBody)
 	req.Header.Set("Authorization", "Basic invalid")
 	rr := httptest.NewRecorder()
 	authHandler.ServeHTTP(rr, req)
@@ -78,7 +80,7 @@ func TestBasicAuth_InvalidCredentials(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.caseName, func(t *testing.T) {
-			req, _ := http.NewRequest("GET", "/", nil)
+			req, _ := http.NewRequest("GET", "/", http.NoBody)
 			credentials := fmt.Sprintf("%s:%s", tc.username, tc.password)
 			req.Header.Set("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(credentials))))
 			rr := httptest.NewRecorder()
@@ -98,7 +100,7 @@ func TestBasicAuth_ValidCredentials(t *testing.T) {
 	t.Setenv("API_BASIC_AUTH_USERNAME", "admin")
 	t.Setenv("API_BASIC_AUTH_PASSWORD_HASH", getPasswordHash("admin"))
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, _ := http.NewRequest("GET", "/", http.NoBody)
 	req.Header.Set("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("admin:admin"))))
 	rr := httptest.NewRecorder()
 	authHandler.ServeHTTP(rr, req)
