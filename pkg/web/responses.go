@@ -17,8 +17,8 @@ type ErrorResponse struct {
 }
 
 type FieldError struct {
-	Field   string
-	Message string
+	Field   string `json:"field"`
+	Message string `json:"message"`
 }
 
 func BadRequest(w http.ResponseWriter, errors map[string]string) {

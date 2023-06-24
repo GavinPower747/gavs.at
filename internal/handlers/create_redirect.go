@@ -32,5 +32,5 @@ func (h *Handlers) UpsertRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 }

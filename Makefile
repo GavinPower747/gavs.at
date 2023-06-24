@@ -16,7 +16,7 @@ endif
 .PHONY: install dev-run clean compile test
 
 dev-run:
-	docker-compose --env-file ./.env up --build --force-recreate
+	docker-compose build --no-cache && docker-compose --env-file ./.env up
 
 install:
 	go get -u ./... && go mod tidy
@@ -29,3 +29,6 @@ compile: clean
 
 test:
 	$(ARCH) go test -v ./...
+
+lint:
+	& 'C:\Program Files\Git\bin\sh.exe' --login -c "golangci-lint run -v"

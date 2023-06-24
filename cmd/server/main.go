@@ -49,7 +49,7 @@ func configureRouter(reqHandlers *handlers.Handlers) *mux.Router {
 
 	r.Use(middleware.RequestMetrics)
 
-	apiRouter := r.Path("/api").Subrouter()
+	apiRouter := r.PathPrefix("/api").Subrouter()
 
 	apiRouter.Use(middleware.BasicAuth)
 
