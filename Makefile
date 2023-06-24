@@ -2,7 +2,7 @@ funcRoot := ./functions
 
 ifeq ($(ENVIRONMENT), production)
 	ARCH = GOOS=linux GOARCH=amd64
-	LD_FLAGS = -ldflags="-s -w"
+	LD_FLAGS = -ldflags='-s -w'
 	TAGS = -tags=prod
 endif
 
@@ -15,8 +15,8 @@ endif
 
 .PHONY: install dev-run clean compile test
 
-dev-run: install
-	docker-compose --env-file ./.env up
+dev-run:
+	docker-compose --env-file ./.env up --build --force-recreate
 
 install:
 	go get -u ./... && go mod tidy

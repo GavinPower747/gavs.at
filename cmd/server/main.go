@@ -28,17 +28,7 @@ func main() {
 
 	reqHandlers := handlers.NewHandlers(storageAccount)
 
-	r := mux.NewRouter()
-
-	r.Use(middleware.RequestMetrics)
-
-	apiRouter := r.Path("/api").Subrouter()
-
-	apiRouter.Use(middleware.BasicAuth)
-
-	apiRouter.HandleFunc("/redirect", reqHandlers.UpsertRedirect).Methods("POST")
-
-	r.HandleFunc("/{slug}", reqHandlers.Redirect).Methods("GET")
+	r := configureRouter(reqHandlers)
 
 	const timeoutDuration = 5 * time.Second
 
@@ -52,4 +42,20 @@ func main() {
 
 	log.Printf("About to listen on %s. Go to https://127.0.0.1%s", listenAddr, listenAddr)
 	log.Fatal(srv.ListenAndServe())
+}
+
+func configureRouter(reqHandlers *handlers.Handlers) *mux.Router {
+	r := mux.NewRouter()
+
+	r.Use(middleware.RequestMetrics)
+
+	apiRouter := r.Path("/api").Subrouter()
+
+	apiRouter.Use(middleware.BasicAuth)
+
+	apiRouter.HandleFunc("/redirect", reqHandlers.UpsertRedirect).Methods("POST")
+
+	r.HandleFunc("/{slug}", reqHandlers.Redirect).Methods("GET")
+
+	return r
 }
