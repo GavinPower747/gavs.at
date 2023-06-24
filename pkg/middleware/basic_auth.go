@@ -3,11 +3,12 @@ package middleware
 import (
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
+
+	"gavs.at/shortener/pkg/web"
 )
 
 const (
@@ -20,7 +21,7 @@ func BasicAuth(next http.Handler) http.Handler {
 		authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
 
 		if authHeader == "" {
-			writeErrorResponse("Missing Authorization Header", w)
+			web.NotAuthorized(w, "Missing Authorization Header")
 
 			return
 		}
@@ -28,7 +29,7 @@ func BasicAuth(next http.Handler) http.Handler {
 		headerSections := strings.Split(authHeader, " ")
 
 		if !strings.HasPrefix(authHeader, "Basic ") {
-			writeErrorResponse(fmt.Sprintf("Invalid Authorization Header, %s authentication scheme is not supported", headerSections[0]), w)
+			web.NotAuthorized(w, fmt.Sprintf("Invalid Authorization Header, %s authentication scheme is not supported", headerSections[0]))
 
 			return
 		}
@@ -36,7 +37,7 @@ func BasicAuth(next http.Handler) http.Handler {
 		decodedCreds, err := base64.StdEncoding.DecodeString(headerSections[1])
 
 		if err != nil {
-			writeErrorResponse("Invalid Authorization Header", w)
+			web.NotAuthorized(w, "Invalid Authorization Header")
 
 			return
 		}
@@ -51,7 +52,7 @@ func BasicAuth(next http.Handler) http.Handler {
 		expectedPasswordHash := os.Getenv(passwordHashEnvVar)
 
 		if username != expectedUsername || passwordHash != expectedPasswordHash {
-			writeErrorResponse("Invalid Credentials", w)
+			web.NotAuthorized(w, "Invalid Credentials")
 
 			return
 		}
@@ -67,21 +68,4 @@ func getPasswordHash(password string) string {
 	bytes := hasher.Sum(nil)
 
 	return base64.StdEncoding.EncodeToString(bytes)
-}
-
-func writeErrorResponse(message string, w http.ResponseWriter) {
-	w.WriteHeader(http.StatusUnauthorized)
-
-	resp := make(map[string]string)
-	resp["message"] = message
-
-	jsonResp, err := json.Marshal(resp)
-
-	if err != nil {
-		w.Write([]byte("Auth Error"))
-
-		return
-	}
-
-	w.Write(jsonResp)
 }
