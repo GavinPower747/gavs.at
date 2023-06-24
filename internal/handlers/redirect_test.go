@@ -45,7 +45,7 @@ func TestRedirect(t *testing.T) {
 
 	link := &model.Redirect{Slug: slug, FullURL: "https://example.com"}
 	linkBytes, _ := json.Marshal(link)
-	mockStorage.On("QueryEntity", "1", slug).Return(linkBytes, nil)
+	mockStorage.On("QueryEntity", "pk001", slug).Return(linkBytes, nil)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{slug}", reqHandlers.Redirect)
@@ -63,7 +63,7 @@ func TestRedirectNotFound(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
 	reqHandlers := handlers.NewHandlers(mockStorage)
 
-	mockStorage.On("QueryEntity", "1", slug).Return(nil, nil)
+	mockStorage.On("QueryEntity", "pk001", slug).Return(nil, nil)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{slug}", reqHandlers.Redirect)
@@ -80,7 +80,7 @@ func TestRedirectError(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
 	reqHandlers := handlers.NewHandlers(mockStorage)
 
-	mockStorage.On("QueryEntity", "1", slug).Return(nil, errors.New("test error"))
+	mockStorage.On("QueryEntity", "pk001", slug).Return(nil, errors.New("test error"))
 
 	r := mux.NewRouter()
 	r.HandleFunc("/{slug}", reqHandlers.Redirect)

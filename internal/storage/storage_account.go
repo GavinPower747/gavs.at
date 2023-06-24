@@ -30,7 +30,7 @@ func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, erro
 	filter := fmt.Sprintf("PartitionKey eq '%s' and RowKey eq '%s'", partitionKey, rowKey)
 	query := &aztables.ListEntitiesOptions{
 		Filter: &filter,
-		Select: to.StringPtr("RowKey,Slug,FullUrl"),
+		Select: to.StringPtr("RowKey,Slug,FullURL"),
 		Top:    to.Int32Ptr(1),
 	}
 

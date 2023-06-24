@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
@@ -27,6 +28,7 @@ func (h *Handlers) UpsertRedirect(w http.ResponseWriter, r *http.Request) {
 	err := h.storage.UpsertEntity(redirect)
 
 	if err != nil {
+		log.Printf("Error when upserting redirect: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
 		return
