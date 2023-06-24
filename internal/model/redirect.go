@@ -4,6 +4,8 @@ import (
 	"net/url"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
+
+	"gavs.at/shortener/pkg/web"
 )
 
 type Redirect struct {
@@ -17,8 +19,8 @@ type UpsertRedirectRequest struct {
 	FullURL string `json:"FullURL"`
 }
 
-func (r *UpsertRedirectRequest) Validate() (bool, ValidationError) {
-	errs := &ValidationError{Errors: make(map[string]string)}
+func (r UpsertRedirectRequest) Validate() (bool, web.ValidationError) {
+	errs := &web.ValidationError{Errors: make(map[string]string)}
 
 	if r.Slug == "" {
 		errs.AddError("Slug", "Slug is required")
@@ -28,7 +30,7 @@ func (r *UpsertRedirectRequest) Validate() (bool, ValidationError) {
 		errs.AddError("FullURL", "FullURL is required")
 	}
 
-	if _, err := url.Parse(r.FullURL); err != nil {
+	if _, err := url.ParseRequestURI(r.FullURL); err != nil {
 		errs.AddError("FullURL", "URL provided is not valid")
 	}
 

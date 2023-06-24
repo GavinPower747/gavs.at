@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"encoding/json"
@@ -7,10 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gavs.at/shortener/internal/model"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"gavs.at/shortener/internal/handlers"
+	"gavs.at/shortener/internal/model"
 )
 
 const (
@@ -39,7 +41,7 @@ func (m *MockStorageAccount) UpsertEntity(entity interface{}) error {
 
 func TestRedirect(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := &Handlers{storage: mockStorage}
+	handlers := handlers.NewHandlers(mockStorage)
 
 	link := &model.Redirect{Slug: slug, FullURL: "https://example.com"}
 	linkBytes, _ := json.Marshal(link)
@@ -59,7 +61,7 @@ func TestRedirect(t *testing.T) {
 
 func TestRedirectNotFound(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := &Handlers{storage: mockStorage}
+	handlers := handlers.NewHandlers(mockStorage)
 
 	mockStorage.On("QueryEntity", "1", slug).Return(nil, nil)
 
@@ -76,7 +78,7 @@ func TestRedirectNotFound(t *testing.T) {
 
 func TestRedirectError(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := &Handlers{storage: mockStorage}
+	handlers := handlers.NewHandlers(mockStorage)
 
 	mockStorage.On("QueryEntity", "1", slug).Return(nil, errors.New("test error"))
 
