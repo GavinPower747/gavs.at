@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"encoding/json"
@@ -7,10 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gavs.at/shortener/internal/model"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"gavs.at/shortener/internal/handlers"
+	"gavs.at/shortener/internal/model"
 )
 
 const (
@@ -31,16 +33,22 @@ func (m *MockStorageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, e
 	return args.Get(0).([]byte), args.Error(1)
 }
 
+func (m *MockStorageAccount) UpsertEntity(entity interface{}) error {
+	args := m.Called(entity)
+
+	return args.Error(0)
+}
+
 func TestRedirect(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := &Handlers{storage: mockStorage}
+	reqHandlers := handlers.NewHandlers(mockStorage)
 
-	link := &model.Link{Slug: slug, FullURL: "https://example.com"}
+	link := &model.Redirect{Slug: slug, FullURL: "https://example.com"}
 	linkBytes, _ := json.Marshal(link)
 	mockStorage.On("QueryEntity", "1", slug).Return(linkBytes, nil)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
 	req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
@@ -53,12 +61,12 @@ func TestRedirect(t *testing.T) {
 
 func TestRedirectNotFound(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := &Handlers{storage: mockStorage}
+	reqHandlers := handlers.NewHandlers(mockStorage)
 
 	mockStorage.On("QueryEntity", "1", slug).Return(nil, nil)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
 	req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
@@ -70,12 +78,12 @@ func TestRedirectNotFound(t *testing.T) {
 
 func TestRedirectError(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := &Handlers{storage: mockStorage}
+	reqHandlers := handlers.NewHandlers(mockStorage)
 
 	mockStorage.On("QueryEntity", "1", slug).Return(nil, errors.New("test error"))
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
 	req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 

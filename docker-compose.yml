@@ -15,5 +15,7 @@ services:
       - "8080:80"
     environment:
       - API_AzureStorageConnectionString
+      - API_BASIC_AUTH_USERNAME
+      - API_BASIC_AUTH_PASSWORD_HASH
     depends_on:
       - storage.emulator

@@ -64,6 +64,14 @@ output:
 issues:
   max-same-issues: 0
   max-issues-per-linter: 0
+  exclude-rules:
+    - linters:
+        - errcheck
+      text: "Error return value of `w.Write` is not checked"
+    - linters:
+        - wsl
+      text: "declarations should never be cuddled"
+    
 
 run:
   issues-exit-code: 1

@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -11,6 +13,7 @@ import (
 
 type Account interface {
 	QueryEntity(partitionKey string, rowKey string) ([]byte, error)
+	UpsertEntity(entity interface{}) error
 }
 
 type storageAccount struct {
@@ -48,8 +51,28 @@ func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, erro
 	return nil, nil
 }
 
+func (sa *storageAccount) UpsertEntity(entity interface{}) error {
+	tableClient := sa.serviceClient.NewClient(TableName)
+
+	jsonEntity, err := json.Marshal(entity)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tableClient.UpsertEntity(context.Background(), jsonEntity, nil)
+
+	return err
+}
+
 func NewStorageAccount() (Account, error) {
-	sa, err := aztables.NewServiceClientFromConnectionString(os.Getenv("API_AzureStorageConnectionString"), nil)
+	connectionString, found := os.LookupEnv("API_AzureStorageConnectionString")
+
+	if !found {
+		return nil, errors.New("API_AzureStorageConnectionString not found")
+	}
+
+	sa, err := aztables.NewServiceClientFromConnectionString(connectionString, nil)
 
 	if err != nil {
 		return nil, err

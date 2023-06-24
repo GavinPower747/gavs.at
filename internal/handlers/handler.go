@@ -1,6 +1,8 @@
 package handlers
 
-import "gavs.at/shortener/internal/storage"
+import (
+	"gavs.at/shortener/internal/storage"
+)
 
 type Handlers struct {
 	storage storage.Account
