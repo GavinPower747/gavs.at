@@ -8,8 +8,8 @@ type Handlers struct {
 	storage storage.Account
 }
 
-func NewHandlers(storage storage.Account) *Handlers {
+func NewHandlers(storageAccount storage.Account) *Handlers {
 	return &Handlers{
-		storage,
+		storage: storageAccount,
 	}
 }

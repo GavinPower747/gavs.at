@@ -8,7 +8,7 @@ func (e *ValidationError) Error() string {
 	return "Validation error"
 }
 
-func (e *ValidationError) AddError(field string, message string) {
+func (e *ValidationError) AddError(field, message string) {
 	e.Errors[field] = message
 }
 
