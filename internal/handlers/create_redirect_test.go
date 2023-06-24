@@ -18,7 +18,7 @@ type MockStorage struct {
 	UpsertEntityFunc func(entity interface{}) error
 }
 
-func (m *MockStorage) QueryEntity(partitionKey, rowKey string) ([]byte, error) {
+func (m *MockStorage) QueryEntity(_, _ string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -145,6 +145,6 @@ func TestHandlers_UpsertRedirect_ReadRequestBodyError(t *testing.T) {
 
 type errorReader struct{}
 
-func (r *errorReader) Read(p []byte) (n int, err error) {
+func (r *errorReader) Read(_ []byte) (n int, err error) {
 	return 0, errors.New("test error")
 }

@@ -26,7 +26,7 @@ func (e *ValidationError) HasErrors() bool {
 	return len(e.Errors) > 0
 }
 
-func ValidateAndParseBody[T Validatable](r *http.Request) (*T, map[string]string) {
+func ValidateAndParseBody[T Validatable](r *http.Request) (parsedReq *T, errors map[string]string) {
 	b, err := io.ReadAll(r.Body)
 
 	if err != nil {

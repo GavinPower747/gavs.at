@@ -41,14 +41,14 @@ func (m *MockStorageAccount) UpsertEntity(entity interface{}) error {
 
 func TestRedirect(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := handlers.NewHandlers(mockStorage)
+	reqHandlers := handlers.NewHandlers(mockStorage)
 
 	link := &model.Redirect{Slug: slug, FullURL: "https://example.com"}
 	linkBytes, _ := json.Marshal(link)
 	mockStorage.On("QueryEntity", "1", slug).Return(linkBytes, nil)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
 	req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
@@ -61,12 +61,12 @@ func TestRedirect(t *testing.T) {
 
 func TestRedirectNotFound(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := handlers.NewHandlers(mockStorage)
+	reqHandlers := handlers.NewHandlers(mockStorage)
 
 	mockStorage.On("QueryEntity", "1", slug).Return(nil, nil)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
 	req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
@@ -78,12 +78,12 @@ func TestRedirectNotFound(t *testing.T) {
 
 func TestRedirectError(t *testing.T) {
 	mockStorage := &MockStorageAccount{}
-	handlers := handlers.NewHandlers(mockStorage)
+	reqHandlers := handlers.NewHandlers(mockStorage)
 
 	mockStorage.On("QueryEntity", "1", slug).Return(nil, errors.New("test error"))
 
 	r := mux.NewRouter()
-	r.HandleFunc("/{slug}", handlers.Redirect)
+	r.HandleFunc("/{slug}", reqHandlers.Redirect)
 
 	req, _ := http.NewRequest("GET", "/"+slug, http.NoBody)
 
