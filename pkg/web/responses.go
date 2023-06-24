@@ -34,7 +34,7 @@ func BadRequest(w http.ResponseWriter, errors map[string]string) {
 		resp.Errors = append(resp.Errors, FieldError{Field: field, Message: message})
 	}
 
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func NotAuthorized(w http.ResponseWriter, message string) {
@@ -45,5 +45,5 @@ func NotAuthorized(w http.ResponseWriter, message string) {
 		Message:   message,
 	}
 
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
