@@ -50,7 +50,7 @@ func TestHandlers_UpsertRedirect_ValidRequest(t *testing.T) {
 	h.UpsertRedirect(rr, req)
 
 	// Assert
-	assert.Equal(t, http.StatusCreated, rr.Code)
+	assert.Equal(t, http.StatusOK, rr.Code)
 }
 
 func TestHandlers_UpsertRedirect_InvalidRequest(t *testing.T) {
