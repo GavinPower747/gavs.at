@@ -24,7 +24,7 @@ func RequestMetrics(next http.Handler) http.Handler {
 
 		duration := time.Since(startTime)
 
-		connectionString := os.Getenv("APPINSIGHTS_CONNECTION_STRING")
+		connectionString := os.Getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
 
 		if connectionString == "" {
 			return
