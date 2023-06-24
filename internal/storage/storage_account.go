@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -12,7 +13,7 @@ import (
 
 type Account interface {
 	QueryEntity(partitionKey string, rowKey string) ([]byte, error)
-	UpsertEntity(rowKey string, entity interface{}) error
+	UpsertEntity(entity interface{}) error
 }
 
 type storageAccount struct {
@@ -50,8 +51,18 @@ func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, erro
 	return nil, nil
 }
 
-func (sa *storageAccount) UpsertEntity(rowKey string, entity interface{}) error {
-	return nil
+func (sa *storageAccount) UpsertEntity(entity interface{}) error {
+	tableClient := sa.serviceClient.NewClient(TableName)
+
+	jsonEntity, err := json.Marshal(entity)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tableClient.UpsertEntity(context.Background(), jsonEntity, nil)
+
+	return err
 }
 
 func NewStorageAccount() (Account, error) {

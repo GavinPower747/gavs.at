@@ -31,8 +31,8 @@ func (m *MockStorageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, e
 	return args.Get(0).([]byte), args.Error(1)
 }
 
-func (m *MockStorageAccount) UpsertEntity(rowKey string, entity interface{}) error {
-	args := m.Called(rowKey, entity)
+func (m *MockStorageAccount) UpsertEntity(entity interface{}) error {
+	args := m.Called(entity)
 
 	return args.Error(0)
 }
