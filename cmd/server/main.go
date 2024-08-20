@@ -1,27 +1,47 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/gorilla/mux"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 
 	"gavs.at/shortener/internal/handlers"
 	"gavs.at/shortener/internal/storage"
 	"gavs.at/shortener/pkg/middleware"
+	"gavs.at/shortener/pkg/observability"
 )
 
 func main() {
-	listenAddr := ":8080"
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
-		listenAddr = ":" + val
+func run() (err error) {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	otelShutdown, err := observability.SetupOTelSDK(ctx)
+	if err != nil {
+		log.Fatalf("Failed to setup otel: %v", err)
+		return
 	}
 
-	storageAccount, err := storage.NewStorageAccount()
+	defer func() {
+		err = errors.Join(err, otelShutdown(context.Background()))
+	}()
 
+	listenAddr := ":80"
+
+	storageAccount, err := storage.NewStorageAccount()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,20 +53,34 @@ func main() {
 	const timeoutDuration = 5 * time.Second
 
 	srv := &http.Server{
-		Handler: r,
-		Addr:    listenAddr,
-
+		Handler:      r,
+		Addr:         listenAddr,
+		BaseContext:  func(_ net.Listener) context.Context { return ctx },
 		WriteTimeout: timeoutDuration,
 		ReadTimeout:  timeoutDuration,
 	}
 
-	log.Printf("About to listen on %s. Go to https://127.0.0.1%s", listenAddr, listenAddr)
-	log.Fatal(srv.ListenAndServe())
+	srvErr := make(chan error, 1)
+	go func() {
+		log.Println("Listening on", listenAddr)
+		srvErr <- srv.ListenAndServe()
+	}()
+
+	select {
+	case err = <-srvErr:
+		return
+	case <-ctx.Done():
+		stop()
+	}
+
+	err = srv.Shutdown(context.Background())
+	return
 }
 
 func configureRouter(reqHandlers *handlers.Handlers) *mux.Router {
 	r := mux.NewRouter()
 
+	r.Use(otelmux.Middleware("gavs.at"))
 	r.Use(middleware.RequestMetrics)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()

@@ -8,11 +8,13 @@ import (
 	"os"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/data/aztables"
+	"github.com/Azure/azure-sdk-for-go/sdk/tracing/azotel"
 	"github.com/Azure/go-autorest/autorest/to"
+	"go.opentelemetry.io/otel"
 )
 
 type Account interface {
-	QueryEntity(partitionKey string, rowKey string) ([]byte, error)
+	QueryEntity(ctx context.Context, partitionKey string, rowKey string) ([]byte, error)
 	UpsertEntity(entity interface{}) error
 }
 
@@ -24,7 +26,7 @@ const (
 	TableName = "ShortLinks"
 )
 
-func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, error) {
+func (sa *storageAccount) QueryEntity(ctx context.Context, partitionKey, rowKey string) ([]byte, error) {
 	client := sa.serviceClient.NewClient(TableName)
 
 	filter := fmt.Sprintf("PartitionKey eq '%s' and RowKey eq '%s'", partitionKey, rowKey)
@@ -37,7 +39,7 @@ func (sa *storageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, erro
 	pager := client.NewListEntitiesPager(query)
 
 	for pager.More() {
-		resp, err := pager.NextPage(context.Background())
+		resp, err := pager.NextPage(ctx)
 
 		if err != nil {
 			return []byte{}, err
@@ -72,7 +74,10 @@ func NewStorageAccount() (Account, error) {
 		return nil, errors.New("API_AzureStorageConnectionString not found")
 	}
 
-	sa, err := aztables.NewServiceClientFromConnectionString(connectionString, nil)
+	opt := aztables.ClientOptions{}
+	opt.TracingProvider = azotel.NewTracingProvider(otel.GetTracerProvider(), nil)
+
+	sa, err := aztables.NewServiceClientFromConnectionString(connectionString, &opt)
 
 	if err != nil {
 		return nil, err

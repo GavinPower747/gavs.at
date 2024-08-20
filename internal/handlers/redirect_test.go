@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -23,7 +24,7 @@ type MockStorageAccount struct {
 	mock.Mock
 }
 
-func (m *MockStorageAccount) QueryEntity(partitionKey, rowKey string) ([]byte, error) {
+func (m *MockStorageAccount) QueryEntity(ctx context.Context, partitionKey, rowKey string) ([]byte, error) {
 	args := m.Called(partitionKey, rowKey)
 
 	if args.Get(0) == nil {

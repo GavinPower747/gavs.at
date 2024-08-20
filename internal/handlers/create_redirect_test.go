@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -18,7 +19,7 @@ type MockStorage struct {
 	UpsertEntityFunc func(entity interface{}) error
 }
 
-func (m *MockStorage) QueryEntity(_, _ string) ([]byte, error) {
+func (m *MockStorage) QueryEntity(_ context.Context, _, _ string) ([]byte, error) {
 	return nil, nil
 }
 
