@@ -22,10 +22,10 @@ install:
 	go get -u ./... && go mod tidy
 
 clean:
-	rm $(RM_FLAGS) $(funcRoot)/bin
+	rm $(RM_FLAGS) ./bin
 
 compile: clean
-	$(ARCH) go build $(LD_FLAGS) $(TAGS) -o $(funcRoot)/bin/server ./cmd/server/main.go
+	$(ARCH) go build $(LD_FLAGS) $(TAGS) -v -o ./bin/server ./cmd/server/main.go
 
 test:
 	$(ARCH) go test -v ./...

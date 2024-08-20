@@ -1,15 +1,26 @@
-FROM golang:alpine as builder
+FROM golang:1.21-bookworm as builder
+ARG GIT_COMMIT
+ARG GIT_BRANCH
+ARG BUILD_DATE
 
-COPY . ./app
+WORKDIR /app
 
-WORKDIR /go/app
+COPY go.* ./
+RUN go mod download
 
-RUN apk add --update make
+COPY . ./
+
 RUN make compile ENVIROMENT=production
 
-FROM mcr.microsoft.com/azure-functions/base:4 as runtime-image
+FROM debian:bookworm-slim
+RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-ENV AzureWebJobsScriptRoot=/home/app \
-    AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+ENV GIT_COMMIT=$GIT_COMMIT
+ENV GIT_BRANCH=$GIT_BRANCH
+ENV BUILD_DATE=$BUILD_DATE
 
-COPY --from=builder ["/go/app/functions", "/home/app"]
+COPY --from=builder /app/bin/server /app/bin/server
+
+CMD ["/app/bin/server"]

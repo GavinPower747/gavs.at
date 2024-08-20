@@ -6,8 +6,14 @@ services:
       - "10000:10000"
       - "10001:10001"
       - "10002:10002"
-  
-  functions:
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "6831:6831/udp"
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "16686:16686"
+  application:
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,5 +23,9 @@ services:
       - API_AzureStorageConnectionString
       - API_BASIC_AUTH_USERNAME
       - API_BASIC_AUTH_PASSWORD_HASH
+      - OTEL_EXPORTER_OTLP_ENDPOINT
     depends_on:
       - storage.emulator
+      - jaeger
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
