@@ -28,7 +28,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: latest
+        tags: ${{ secrets.REGISTRY_URL }}/gavinpower747/shortener:latest
         build-args: |
           GIT_COMMIT=${{github.sha}}
           GIT_BRANCH=${{github.ref}}
