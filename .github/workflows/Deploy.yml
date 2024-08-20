@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
+    - name: 'Setup docker build'
+      uses: docker/setup-buildx-action@v3
     
     - name: 'Login to private container registry'
       uses: Azure/docker-login@v1
@@ -18,9 +21,6 @@ jobs:
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
         login-server: ${{ secrets.REGISTRY_URL }}
-        
-    - name: 'Setup docker build'
-      uses: docker/setup-buildx-action@v3
 
     - name: 'Build docker image'
       uses: docker/build-push-action@v6.7.0
