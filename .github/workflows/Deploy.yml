@@ -32,5 +32,5 @@ jobs:
         build-args: |
           GIT_COMMIT=${{github.sha}}
           GIT_BRANCH=${{github.ref}}
-          BUILD_DATE=${{ github.event.repository.updated_at) }}
+          BUILD_DATE=${{ github.event.repository.updated_at }}
         
