@@ -40,9 +40,8 @@ jobs:
     steps:    
     - name: 'Deploy new image to app service'
       uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'shortener'
-          slot-name: 'production'
-          publish_profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          images: ${{ secrets.REGISTRY_URL }}/gavinpower747/shortener:${{ github.sha }}
-        
+      with:
+        app-name: 'shortener'
+        slot-name: 'production'
+        publish_profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+        images: ${{ secrets.REGISTRY_URL }}/gavinpower747/shortener:${{ github.sha }}
