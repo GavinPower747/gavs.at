@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -28,9 +28,21 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.REGISTRY_URL }}/gavinpower747/shortener:latest
+        tags: ${{ secrets.REGISTRY_URL }}/gavinpower747/shortener:${{ github.sha }}
         build-args: |
-          GIT_COMMIT=${{github.sha}}
-          GIT_BRANCH=${{github.ref}}
+          GIT_COMMIT=${{ github.sha }}
+          GIT_BRANCH=${{ github.ref }}
           BUILD_DATE=${{ github.event.repository.updated_at }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:    
+    - name: 'Deploy new image to app service'
+      uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'shortener'
+          slot-name: 'production'
+          publish_profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          images: ${{ secrets.REGISTRY_URL }}/gavinpower747/shortener:${{ github.sha }}
         
