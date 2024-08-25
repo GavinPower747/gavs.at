@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -71,7 +70,6 @@ func run() (err error) {
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         listenAddr,
-		BaseContext:  func(_ net.Listener) context.Context { return ctx },
 		WriteTimeout: timeoutDuration,
 		ReadTimeout:  timeoutDuration,
 	}
