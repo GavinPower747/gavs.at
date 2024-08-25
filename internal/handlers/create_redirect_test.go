@@ -23,7 +23,7 @@ func (m *MockStorage) QueryEntity(_ context.Context, _, _ string) ([]byte, error
 	return nil, nil
 }
 
-func (m *MockStorage) UpsertEntity(entity interface{}) error {
+func (m *MockStorage) UpsertEntity(_ context.Context, entity interface{}) error {
 	if m.UpsertEntityFunc == nil {
 		return nil
 	}

@@ -14,7 +14,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
-func SetupOTelSDK(ctx context.Context) (shutdown func(context.Context) error, err error) {
+func SetupOTelSDK(ctx context.Context, serviceName string) (shutdown func(context.Context) error, err error) {
 	var shutdownFuncs []func(context.Context) error
 
 	shutdown = func(ctx context.Context) error {
@@ -35,7 +35,7 @@ func SetupOTelSDK(ctx context.Context) (shutdown func(context.Context) error, er
 
 	resource := resource.NewWithAttributes(
 		semconv.SchemaURL,
-		semconv.ServiceNameKey.String("gavs.at"),
+		semconv.ServiceNameKey.String(serviceName),
 		semconv.ServiceVersionKey.String(os.Getenv("GIT_COMMIT")),
 		attribute.String("build.commit", os.Getenv("GIT_COMMIT")),
 		attribute.String("build.branch", os.Getenv("GIT_BRANCH")),

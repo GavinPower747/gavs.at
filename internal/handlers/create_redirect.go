@@ -25,7 +25,7 @@ func (h *Handlers) UpsertRedirect(w http.ResponseWriter, r *http.Request) {
 		Entity:  aztables.Entity{PartitionKey: "pk001", RowKey: req.Slug},
 	}
 
-	err := h.storage.UpsertEntity(redirect)
+	err := h.storage.UpsertEntity(r.Context(), redirect)
 
 	if err != nil {
 		log.Printf("Error when upserting redirect: %s", err)

@@ -15,7 +15,7 @@ import (
 
 type Account interface {
 	QueryEntity(ctx context.Context, partitionKey string, rowKey string) ([]byte, error)
-	UpsertEntity(entity interface{}) error
+	UpsertEntity(ctx context.Context, entity interface{}) error
 }
 
 type storageAccount struct {
@@ -53,7 +53,7 @@ func (sa *storageAccount) QueryEntity(ctx context.Context, partitionKey, rowKey 
 	return nil, nil
 }
 
-func (sa *storageAccount) UpsertEntity(entity interface{}) error {
+func (sa *storageAccount) UpsertEntity(ctx context.Context, entity interface{}) error {
 	tableClient := sa.serviceClient.NewClient(TableName)
 
 	jsonEntity, err := json.Marshal(entity)
@@ -62,12 +62,12 @@ func (sa *storageAccount) UpsertEntity(entity interface{}) error {
 		return err
 	}
 
-	_, err = tableClient.UpsertEntity(context.Background(), jsonEntity, nil)
+	_, err = tableClient.UpsertEntity(ctx, jsonEntity, nil)
 
 	return err
 }
 
-func NewStorageAccount() (Account, error) {
+func NewStorageAccount(ctx context.Context) (Account, error) {
 	connectionString, found := os.LookupEnv("API_AzureStorageConnectionString")
 
 	if !found {
@@ -91,14 +91,14 @@ func NewStorageAccount() (Account, error) {
 	pager := sa.NewListTablesPager(pagerOptions)
 
 	for pager.More() {
-		resp, pageErr := pager.NextPage(context.Background())
+		resp, pageErr := pager.NextPage(ctx)
 
 		if pageErr != nil {
 			return nil, pageErr
 		}
 
 		if len(resp.Tables) == 0 {
-			_, err = sa.CreateTable(context.Background(), TableName, nil)
+			_, err = sa.CreateTable(ctx, TableName, nil)
 
 			if err != nil {
 				return nil, err
