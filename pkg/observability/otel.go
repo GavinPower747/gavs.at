@@ -18,12 +18,12 @@ func SetupOTelSDK(ctx context.Context, serviceName string) (shutdown func(contex
 	var shutdownFuncs []func(context.Context) error
 
 	shutdown = func(ctx context.Context) error {
-		var err error
 		for _, fn := range shutdownFuncs {
 			if shutErr := fn(ctx); shutErr != nil {
 				err = errors.Join(err, shutErr)
 			}
 		}
+
 		return err
 	}
 
@@ -33,7 +33,7 @@ func SetupOTelSDK(ctx context.Context, serviceName string) (shutdown func(contex
 		}
 	}
 
-	resource := resource.NewWithAttributes(
+	otelService := resource.NewWithAttributes(
 		semconv.SchemaURL,
 		semconv.ServiceNameKey.String(serviceName),
 		semconv.ServiceVersionKey.String(os.Getenv("GIT_COMMIT")),
@@ -45,7 +45,7 @@ func SetupOTelSDK(ctx context.Context, serviceName string) (shutdown func(contex
 
 	otel.SetTextMapPropagator(newPropagator())
 
-	tracerProvider, err := newTraceProvider(ctx, resource)
+	tracerProvider, err := newTraceProvider(ctx, otelService)
 	if err != nil {
 		handleErr(err)
 		return
@@ -64,7 +64,7 @@ func newPropagator() propagation.TextMapPropagator {
 	)
 }
 
-func newTraceProvider(ctx context.Context, resource *resource.Resource) (*trace.TracerProvider, error) {
+func newTraceProvider(ctx context.Context, service *resource.Resource) (*trace.TracerProvider, error) {
 	exporter, err := otlptracehttp.New(ctx)
 
 	if err != nil {
@@ -73,7 +73,8 @@ func newTraceProvider(ctx context.Context, resource *resource.Resource) (*trace.
 
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
-		trace.WithResource(resource),
+		trace.WithResource(service),
 	)
+
 	return tp, nil
 }

@@ -31,14 +31,13 @@ const (
 )
 
 func run() (err error) {
-
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
 	otelShutdown, err := observability.SetupOTelSDK(ctx, ServiceName)
 	if err != nil {
-		log.Fatalf("Failed to setup otel: %v", err)
-		return
+		log.Printf("Failed to setup otel: %v", err)
+		return err
 	}
 
 	tracer := otel.GetTracerProvider().Tracer(ServiceName)
@@ -46,6 +45,11 @@ func run() (err error) {
 	ctx, span := tracer.Start(ctx, "ApplicationStartup")
 
 	defer func() {
+		if span.IsRecording() && err != nil {
+			span.RecordError(err)
+			span.End()
+		}
+
 		err = errors.Join(err, otelShutdown(ctx))
 	}()
 
@@ -53,7 +57,9 @@ func run() (err error) {
 
 	storageAccount, err := storage.NewStorageAccount(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+
+		return err
 	}
 
 	reqHandlers := handlers.NewHandlers(storageAccount)
@@ -79,14 +85,19 @@ func run() (err error) {
 
 	select {
 	case err = <-srvErr:
-		return
+		if span.IsRecording() {
+			span.RecordError(err)
+			span.End()
+		}
+
+		return err
 	case <-ctx.Done():
 		stop()
 	}
 
-	err = srv.Shutdown(context.Background())
+	err = srv.Shutdown(ctx)
 
-	return
+	return nil
 }
 
 func configureRouter(reqHandlers *handlers.Handlers) *mux.Router {
