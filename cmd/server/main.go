@@ -12,6 +12,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/otel"
 
 	"gavs.at/shortener/internal/handlers"
 	"gavs.at/shortener/internal/storage"
@@ -26,6 +27,7 @@ func main() {
 }
 
 func run() (err error) {
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
@@ -34,6 +36,11 @@ func run() (err error) {
 		log.Fatalf("Failed to setup otel: %v", err)
 		return
 	}
+
+	tracer := otel.GetTracerProvider().Tracer("gavs.at/shortener")
+
+	_, span := tracer.Start(ctx, "startup")
+	defer span.End()
 
 	defer func() {
 		err = errors.Join(err, otelShutdown(context.Background()))
@@ -74,6 +81,7 @@ func run() (err error) {
 	}
 
 	err = srv.Shutdown(context.Background())
+
 	return
 }
 

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"gavs.at/shortener/pkg/web"
+	"go.opentelemetry.io/otel"
 )
 
 const (
@@ -18,10 +19,22 @@ const (
 
 func BasicAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.GetTracerProvider().Tracer("gavs.at/shortener")
+		_, span := tracer.Start(r.Context(), "BasicAuth")
+
+		endSpan := func() {
+			if span.IsRecording() {
+				span.End()
+			}
+		}
+
+		defer endSpan()
+
 		authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
 
 		if authHeader == "" {
 			web.NotAuthorized(w, "Missing Authorization Header")
+			span.RecordError(fmt.Errorf("Missing Authorization Header"))
 
 			return
 		}
@@ -30,6 +43,7 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if !strings.HasPrefix(authHeader, "Basic ") {
 			web.NotAuthorized(w, fmt.Sprintf("Invalid Authorization Header, %s authentication scheme is not supported", headerSections[0]))
+			span.RecordError(fmt.Errorf("Invalid Authorization Header, %s authentication scheme is not supported", headerSections[0]))
 
 			return
 		}
@@ -38,6 +52,7 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if err != nil {
 			web.NotAuthorized(w, "Invalid Authorization Header")
+			span.RecordError(fmt.Errorf("Invalid Authorization Header"))
 
 			return
 		}
@@ -53,9 +68,12 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if username != expectedUsername || passwordHash != expectedPasswordHash {
 			web.NotAuthorized(w, "Invalid Credentials")
+			span.RecordError(fmt.Errorf("Invalid Credentials"))
 
 			return
 		}
+
+		endSpan()
 
 		next.ServeHTTP(w, r)
 	})
