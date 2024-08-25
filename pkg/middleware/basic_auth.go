@@ -34,7 +34,7 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if authHeader == "" {
 			web.NotAuthorized(w, "Missing Authorization Header")
-			span.RecordError(fmt.Errorf("Missing Authorization Header"))
+			span.RecordError(fmt.Errorf("missing authorization header"))
 
 			return
 		}
