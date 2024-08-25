@@ -48,7 +48,7 @@ func SetupOTelSDK(ctx context.Context, serviceName string) (shutdown func(contex
 	tracerProvider, err := newTraceProvider(ctx, otelService)
 	if err != nil {
 		handleErr(err)
-		return
+		return shutdown, err
 	}
 
 	shutdownFuncs = append(shutdownFuncs, tracerProvider.Shutdown)

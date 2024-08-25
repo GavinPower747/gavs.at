@@ -34,7 +34,7 @@ func (m *MockStorage) UpsertEntity(_ context.Context, entity interface{}) error 
 func TestHandlers_UpsertRedirect_ValidRequest(t *testing.T) {
 	// Arrange
 	mockStorage := &MockStorage{
-		UpsertEntityFunc: func(entity interface{}) error {
+		UpsertEntityFunc: func(_ interface{}) error {
 			return nil
 		},
 	}
@@ -91,7 +91,7 @@ func TestHandlers_UpsertRedirect_InvalidRequestBody(t *testing.T) {
 func TestHandlers_UpsertRedirect_StorageError(t *testing.T) {
 	// Arrange
 	mockStorage := &MockStorage{
-		UpsertEntityFunc: func(entity interface{}) error {
+		UpsertEntityFunc: func(_ interface{}) error {
 			return errors.New("test error")
 		},
 	}

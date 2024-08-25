@@ -77,7 +77,9 @@ func run() (err error) {
 	}
 
 	srvErr := make(chan error, 1)
+
 	span.End()
+
 	go func() {
 		log.Println("Listening on", listenAddr)
 		srvErr <- srv.ListenAndServe()
