@@ -26,31 +26,40 @@ func main() {
 	}
 }
 
-func run() (err error) {
+const (
+	ServiceName = "gavs.at"
+)
 
+func run() (err error) {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	otelShutdown, err := observability.SetupOTelSDK(ctx)
+	otelShutdown, err := observability.SetupOTelSDK(ctx, ServiceName)
 	if err != nil {
-		log.Fatalf("Failed to setup otel: %v", err)
-		return
+		log.Printf("Failed to setup otel: %v", err)
+		return err
 	}
 
-	tracer := otel.GetTracerProvider().Tracer("gavs.at/shortener")
+	tracer := otel.GetTracerProvider().Tracer(ServiceName)
 
-	_, span := tracer.Start(ctx, "startup")
-	defer span.End()
+	ctx, span := tracer.Start(ctx, "ApplicationStartup")
 
 	defer func() {
-		err = errors.Join(err, otelShutdown(context.Background()))
+		if span.IsRecording() && err != nil {
+			span.RecordError(err)
+			span.End()
+		}
+
+		err = errors.Join(err, otelShutdown(ctx))
 	}()
 
 	listenAddr := ":80"
 
-	storageAccount, err := storage.NewStorageAccount()
+	storageAccount, err := storage.NewStorageAccount(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+
+		return err
 	}
 
 	reqHandlers := handlers.NewHandlers(storageAccount)
@@ -68,6 +77,9 @@ func run() (err error) {
 	}
 
 	srvErr := make(chan error, 1)
+
+	span.End()
+
 	go func() {
 		log.Println("Listening on", listenAddr)
 		srvErr <- srv.ListenAndServe()
@@ -75,20 +87,25 @@ func run() (err error) {
 
 	select {
 	case err = <-srvErr:
-		return
+		if span.IsRecording() {
+			span.RecordError(err)
+			span.End()
+		}
+
+		return err
 	case <-ctx.Done():
 		stop()
 	}
 
-	err = srv.Shutdown(context.Background())
+	err = srv.Shutdown(ctx)
 
-	return
+	return nil
 }
 
 func configureRouter(reqHandlers *handlers.Handlers) *mux.Router {
 	r := mux.NewRouter()
 
-	r.Use(otelmux.Middleware("gavs.at"))
+	r.Use(otelmux.Middleware(ServiceName))
 	r.Use(middleware.RequestMetrics)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()

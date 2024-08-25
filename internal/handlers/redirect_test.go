@@ -24,7 +24,7 @@ type MockStorageAccount struct {
 	mock.Mock
 }
 
-func (m *MockStorageAccount) QueryEntity(ctx context.Context, partitionKey, rowKey string) ([]byte, error) {
+func (m *MockStorageAccount) QueryEntity(_ context.Context, partitionKey, rowKey string) ([]byte, error) {
 	args := m.Called(partitionKey, rowKey)
 
 	if args.Get(0) == nil {
@@ -34,7 +34,7 @@ func (m *MockStorageAccount) QueryEntity(ctx context.Context, partitionKey, rowK
 	return args.Get(0).([]byte), args.Error(1)
 }
 
-func (m *MockStorageAccount) UpsertEntity(entity interface{}) error {
+func (m *MockStorageAccount) UpsertEntity(_ context.Context, entity interface{}) error {
 	args := m.Called(entity)
 
 	return args.Error(0)

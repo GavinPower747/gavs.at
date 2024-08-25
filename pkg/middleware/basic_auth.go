@@ -34,7 +34,7 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if authHeader == "" {
 			web.NotAuthorized(w, "Missing Authorization Header")
-			span.RecordError(fmt.Errorf("Missing Authorization Header"))
+			span.RecordError(fmt.Errorf("missing authorization header"))
 
 			return
 		}
@@ -42,8 +42,8 @@ func BasicAuth(next http.Handler) http.Handler {
 		headerSections := strings.Split(authHeader, " ")
 
 		if !strings.HasPrefix(authHeader, "Basic ") {
-			web.NotAuthorized(w, fmt.Sprintf("Invalid Authorization Header, %s authentication scheme is not supported", headerSections[0]))
-			span.RecordError(fmt.Errorf("Invalid Authorization Header, %s authentication scheme is not supported", headerSections[0]))
+			web.NotAuthorized(w, fmt.Sprintf("invalid authorization header, %s authentication scheme is not supported", headerSections[0]))
+			span.RecordError(fmt.Errorf("invalid authorization header, %s authentication scheme is not supported", headerSections[0]))
 
 			return
 		}
@@ -52,7 +52,7 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if err != nil {
 			web.NotAuthorized(w, "Invalid Authorization Header")
-			span.RecordError(fmt.Errorf("Invalid Authorization Header"))
+			span.RecordError(fmt.Errorf("invalid authorization header"))
 
 			return
 		}
@@ -68,7 +68,7 @@ func BasicAuth(next http.Handler) http.Handler {
 
 		if username != expectedUsername || passwordHash != expectedPasswordHash {
 			web.NotAuthorized(w, "Invalid Credentials")
-			span.RecordError(fmt.Errorf("Invalid Credentials"))
+			span.RecordError(fmt.Errorf("invalid credentials"))
 
 			return
 		}
